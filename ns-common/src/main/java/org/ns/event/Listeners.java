@@ -83,14 +83,18 @@ public class Listeners<E> implements Iterable<Listener<E>> {
     public Iterator<Listener<E>> iterator() {
         return new Iterator<Listener<E>>() {
 
+            private int cur = 0;
+            
             @Override
             public boolean hasNext() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                return cur < listeners.length;
             }
 
             @Override
             public Listener<E> next() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                Listener<E> l = (Listener<E>) listeners[cur];
+                ++cur;
+                return l;
             }
 
             @Override
