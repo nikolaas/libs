@@ -7,5 +7,5 @@ package org.ns.func;
  * @param <V>
  */
 public interface Function<K, V> {
-    V apply(K key);
+    V apply(K key) throws Exception;
 }
