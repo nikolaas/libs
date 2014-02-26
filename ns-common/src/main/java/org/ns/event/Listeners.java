@@ -1,6 +1,7 @@
 package org.ns.event;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -83,18 +84,22 @@ public class Listeners<E> implements Iterable<Listener<E>> {
     public Iterator<Listener<E>> iterator() {
         return new Iterator<Listener<E>>() {
 
-            private int cur = 0;
+            private int cur = -1;
             
             @Override
             public boolean hasNext() {
-                return cur < listeners.length;
+                return cur < count - 1;
             }
 
             @Override
             public Listener<E> next() {
-                Listener<E> l = (Listener<E>) listeners[cur];
-                ++cur;
-                return l;
+                if ( hasNext() ) {
+                    ++cur;
+                    Listener<E> l = (Listener<E>) listeners[cur];
+                    return l;
+                } else {
+                    throw new NoSuchElementException();
+                }
             }
 
             @Override
