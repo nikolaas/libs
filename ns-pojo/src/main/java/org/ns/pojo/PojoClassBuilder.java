@@ -89,7 +89,7 @@ class PojoClassBuilder<T> {
         if ( !isGetterName(method) ) {//должен начинаться с get или is
             return false;
         }
-        if ( method.getReturnType().isAssignableFrom(Void.class) ) {//должен возвращать значение
+        if ( method.getReturnType().isAssignableFrom(void.class) ) {//должен возвращать значение
             return false;
         }
         if ( method.getParameterTypes().length > 0 ) {//не должен принимать параметры
@@ -102,7 +102,7 @@ class PojoClassBuilder<T> {
         if ( !isSetterName(method) ) {//должен начинаться с set
             return false;
         }
-        if ( method.getReturnType().isAssignableFrom(Void.class) ) {//должен быть void
+        if ( method.getReturnType().isAssignableFrom(void.class) ) {//должен быть void
             return false;
         }
         if ( method.getParameterTypes().length != 1 ) {//должен принимать один параметр
