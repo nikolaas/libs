@@ -22,7 +22,7 @@ class PojoPropertyImpl implements PojoProperty {
         if ( getter != null ) {
             type = getter.getReturnType();
         } else {
-            type = setter.getReturnType();
+            type = setter.getParameterTypes()[1];
         }
     }
 
@@ -83,4 +83,10 @@ class PojoPropertyImpl implements PojoProperty {
         }
         return annotation;
     }
+
+    @Override
+    public String toString() {
+        return "PojoPropertyImpl{" + "name=" + name + ", type=" + type + '}';
+    }
+    
 }
