@@ -1,5 +1,6 @@
 package org.ns.pojo;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -60,4 +61,15 @@ class PojoPropertyImpl implements PojoProperty {
         return setter != null;
     }
     
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        T annotation = null;
+        if ( isReadable() ) {
+            annotation = getter.getAnnotation(annotationClass);
+        }
+        if ( annotation == null && isWritable() ) {
+            annotation = setter.getAnnotation(annotationClass);
+        }
+        return annotation;
+    }
 }

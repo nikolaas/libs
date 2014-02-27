@@ -1,5 +1,7 @@
 package org.ns.pojo;
 
+import java.lang.annotation.Annotation;
+
 /**
  *
  * @author Николай
@@ -12,4 +14,6 @@ public interface PojoProperty {
     
     boolean isReadable();
     boolean isWritable();
+    
+    <T extends Annotation> T getAnnotation(Class<T> annotationClass);
 }
