@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 class PojoPropertyImpl implements PojoProperty {
 
     private final String name;
+    private final Class<?> type;
     private final Method getter;
     private final Method setter;
 
@@ -18,11 +19,21 @@ class PojoPropertyImpl implements PojoProperty {
         this.name = name;
         this.getter = getter;
         this.setter = setter;
+        if ( getter != null ) {
+            type = getter.getReturnType();
+        } else {
+            type = setter.getReturnType();
+        }
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public Class<?> getType() {
+        return type;
     }
     
     @Override

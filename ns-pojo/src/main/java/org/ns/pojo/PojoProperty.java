@@ -9,6 +9,7 @@ import java.lang.annotation.Annotation;
 public interface PojoProperty {
     
     String getName();
+    Class<?> getType();
     Object getValue(Object instance);
     void setValue(Object instance, Object value);
     
