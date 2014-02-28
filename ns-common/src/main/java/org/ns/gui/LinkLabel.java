@@ -22,20 +22,20 @@ public class LinkLabel extends JLabel {
 
         @Override
         public void mouseClicked(MouseEvent e) {
+            goToLink();
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
             setFont(setUnderline(getFont(), true));
             restoreCursor = getCursor();
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mouseExited(MouseEvent e) {
             setFont(setUnderline(getFont(), false));
             setCursor(restoreCursor);
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            goToLink();
         }
 
         private Font setUnderline(Font font, boolean underline) {
