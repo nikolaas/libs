@@ -35,7 +35,7 @@ public abstract class AbstractDataStoreFactory implements DataStoreFactory {
 
   public final <V extends Serializable> DataStore<V> getDataStore(String id) throws IOException {
     Assert.isTrue(
-        ID_PATTERN.matcher(id).matches(), "%s does not match pattern %s", id, ID_PATTERN);
+        ID_PATTERN.matcher(id).matches(), "{0} does not match pattern {1}", id, ID_PATTERN);
     lock.lock();
     try {
       @SuppressWarnings("unchecked")
