@@ -6,5 +6,5 @@ package org.ns.task;
  */
 public interface TaskExecutionService {
 
-    ExecutionController execute(Task task);
+    TaskController execute(String name, Runnable runable);
 }
