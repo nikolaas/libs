@@ -30,11 +30,11 @@ public class Collections {
     }
     
     public static <E> Iterable<E> iterable(Enumeration<E> enumeration) {
-        return new EnumerationIterableWrapper<>(enumeration);
+        return new IteratorWrapper<>(iterator(enumeration));
     }
     
     public static <E> Iterable<E> iterable(E[] array) {
-        return new ArrayIterableWrapper(array);
+        return new IteratorWrapper(iterator(array));
     }
     
     public static <E> Iterator<E> iterator(Enumeration<E> enumeration) {
@@ -61,32 +61,17 @@ public class Collections {
         return list;
     }
     
-    private static class ArrayIterableWrapper<E> implements Iterable<E> {
+    private static class IteratorWrapper<E> implements Iterable<E> {
 
-        private final E[] array;
+        private final Iterator<E> iterator;
 
-        public ArrayIterableWrapper(E[] array) {
-            this.array = array;
+        public IteratorWrapper(Iterator<E> iterator) {
+            this.iterator = iterator;
         }
         
         @Override
         public Iterator<E> iterator() {
-            return Collections.iterator(array);
-        }
-        
-    }
-    
-    private static class EnumerationIterableWrapper<E> implements Iterable<E> {
-
-        private final Enumeration<E> enumeration;
-
-        public EnumerationIterableWrapper(Enumeration<E> enumeration) {
-            this.enumeration = enumeration;
-        }
-        
-        @Override
-        public Iterator<E> iterator() {
-            return Collections.iterator(enumeration);
+            return iterator;
         }
         
     }
