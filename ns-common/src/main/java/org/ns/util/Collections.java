@@ -1,9 +1,12 @@
 package org.ns.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -26,15 +29,102 @@ public class Collections {
         return array == null || array.length == 0;
     }
     
-    public static<E> Iterator<E> iterator(Enumeration<E> enumeration) {
-        return new EnumarationIterator<>(enumeration);
+    public static <E> Iterable<E> iterable(Enumeration<E> enumeration) {
+        return new EnumerationIterableWrapper<>(enumeration);
     }
     
-    private static class EnumarationIterator<E> implements Iterator<E> {
+    public static <E> Iterable<E> iterable(E[] array) {
+        return new ArrayIterableWrapper(array);
+    }
+    
+    public static <E> Iterator<E> iterator(Enumeration<E> enumeration) {
+        return new EnumerationIterator<>(enumeration);
+    }
+    
+    public static <E> Iterator<E> iterator(E[] array) {
+        return new ArrayIterator<>(array);
+    }
+    
+    public static <E> List<E> list(Enumeration<E> enumeration) {
+        return list(iterable(enumeration));
+    }
+    
+    public static <E> List<E> list(E[] array) {
+        return list(iterable(array));
+    }
+    
+    public static <E> List<E> list(Iterable<E> iterable) {
+        List<E> list = new ArrayList<>();
+        for ( E e : iterable ) {
+            list.add(e);
+        }
+        return list;
+    }
+    
+    private static class ArrayIterableWrapper<E> implements Iterable<E> {
+
+        private final E[] array;
+
+        public ArrayIterableWrapper(E[] array) {
+            this.array = array;
+        }
+        
+        @Override
+        public Iterator<E> iterator() {
+            return Collections.iterator(array);
+        }
+        
+    }
+    
+    private static class EnumerationIterableWrapper<E> implements Iterable<E> {
 
         private final Enumeration<E> enumeration;
 
-        public EnumarationIterator(Enumeration<E> enumeration) {
+        public EnumerationIterableWrapper(Enumeration<E> enumeration) {
+            this.enumeration = enumeration;
+        }
+        
+        @Override
+        public Iterator<E> iterator() {
+            return Collections.iterator(enumeration);
+        }
+        
+    }
+    
+    private static class ArrayIterator<E> implements Iterator<E> {
+
+        private final E[] array;
+        private int current = -1;
+
+        public ArrayIterator(E[] array) {
+            this.array = array;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return current < array.length - 1;
+        }
+
+        @Override
+        public E next() {
+            if ( !hasNext() ) {
+                throw new NoSuchElementException();
+            }
+            return array[++current];
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
+    }
+    
+    private static class EnumerationIterator<E> implements Iterator<E> {
+
+        private final Enumeration<E> enumeration;
+
+        public EnumerationIterator(Enumeration<E> enumeration) {
             this.enumeration = enumeration;
         }
         
