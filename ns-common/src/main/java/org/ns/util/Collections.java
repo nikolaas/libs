@@ -27,6 +27,40 @@ public class Collections {
         
     }
     
+    private static final Matcher<Object> LINK_EQUALS_MATCHER = new Matcher<Object>() {
+
+        @Override
+        public boolean match(Object e1, Object e2) {
+            return e1 == e2;
+        }
+    };
+    
+    public static <E> boolean contains(E[] array, E element) {
+        return indexOf(array, element) > -1;
+    }
+    
+    public static <E> boolean contains(E[] array, E element, Matcher<E> matcher) {
+        return indexOf(array, element, matcher) > -1;
+    }
+    
+    public static <E> int indexOf(E[] array, E element) {
+        return indexOf(array, element, LINK_EQUALS_MATCHER);
+    }
+    
+    public static <E> int indexOf(E[] array, E element, Matcher<E> matcher) {
+        Iterator<E> iterator = iterator(array);
+        int index = 0;
+        while ( iterator.hasNext() ) {
+            E current = iterator.next();
+            if ( matcher.match(current, element) ) {
+                return index;
+            } else {
+                index++;
+            }
+        }
+        return -1;
+    }
+    
     public static <E> String join(Collection<E> collection, String delimiter) {
         return join(collection, delimiter);
     }
