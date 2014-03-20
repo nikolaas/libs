@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import org.ns.func.Function;
 
 /**
  *
@@ -15,6 +16,48 @@ import java.util.NoSuchElementException;
 public class Collections {
 
     private Collections() {
+    }
+    
+    private static class ToStringFunction<E> implements Function<E, String> {
+
+        @Override
+        public String apply(E key) {
+            return key.toString();
+        }
+        
+    }
+    
+    public static <E> String join(Collection<E> collection, String delimiter) {
+        return join(collection, delimiter);
+    }
+    
+    public static <E> String join(E[] array, String delimiter) {
+        return join(iterable(array), delimiter);
+    }
+    
+    public static <E> String join(Enumeration<E> enumeration, String delimiter) {
+        return join(iterable(enumeration), delimiter);
+    }
+    
+    public static <E> String join(Iterator<E> iterator, String delimiter) {
+        return join(new IteratorWrapper<>(iterator), delimiter);
+    }
+    
+    public static <E extends Object> String join(Iterable<E> iterable, String delimiter) {
+        return join(iterable, delimiter, new ToStringFunction<E>());
+    }
+    
+    public static <E extends Object> String join(Iterable<E> iterable, String delimiter, Function<E, String> stringConverter) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<E> iterator = iterable.iterator();
+        while ( iterator.hasNext() ) {
+            E element = iterator.next();
+            builder.append(stringConverter.apply(element));
+            if ( iterator.hasNext() ) {
+                builder.append(delimiter);
+            }
+        }
+        return builder.toString();
     }
     
     public static boolean isEmpty(Collection list) {
