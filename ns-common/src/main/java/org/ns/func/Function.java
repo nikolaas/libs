@@ -6,6 +6,7 @@ package org.ns.func;
  * @param <K>
  * @param <V>
  */
-public interface Function<K, V> {
-    V apply(K key) throws Exception;
+public interface Function<K, V> extends UnsafeFunction<K, V, RuntimeException> {
+    @Override
+    V apply(K key);
 }
