@@ -51,6 +51,10 @@ public class StringListEditor extends AbstractListEditor {
             
         }); 
     } 
+
+    @Override
+    public void removeEditorActions(JList list) {
+    }
     
     @Override
     public Object getEditorValue ( JList list, int index, Object oldValue ) { 

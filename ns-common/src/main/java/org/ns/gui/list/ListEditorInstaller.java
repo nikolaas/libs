@@ -5,22 +5,45 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import org.ns.func.Function;
 
 /**
- *
+ * 
  * @author stupak
  */
-public class ListUtils {   
+public class ListEditorInstaller {
     
-    public static void installEditor ( final JList list, final ListEditor listEditor )   {     
+    private final static Function<JList, Integer> DEFAULT_EDITED_CELL_INDEX_PROVIDER = new Function<JList, Integer>() {
+
+        @Override
+        public Integer apply(JList list) {
+            return list.getSelectedIndex();
+        }
+    };
+    
+    private final Function<JList, Integer> editedCellIndexProvider;
+
+    public ListEditorInstaller() {
+        this(DEFAULT_EDITED_CELL_INDEX_PROVIDER);
+    }
+
+    public ListEditorInstaller(Function<JList, Integer> editedCellIndexProvider) {
+        this.editedCellIndexProvider = editedCellIndexProvider;
+    }
+
+    public Function<JList, Integer> getEditedCellIndexProvider() {
+        return editedCellIndexProvider;
+    }
+    
+    public void installEditor ( final JList list, final ListEditor listEditor )   {     
         // Собственно код, начинающий редактирование в списке
-        final Runnable startEdit = new Runnable() { 
+        final Runnable startEdit = new Runnable() {
             
             @Override
             public void run() {
                 // Проверка на наличие выделенной ячейки
-                final int index = list.getSelectedIndex();
-                if ( list.getSelectedIndices().length != 1 || index == -1 ) {
+                final int index = editedCellIndexProvider.apply(list);
+                if ( index == -1 ) {
                     return;
                 }
                 // Проверка на возможность редактирования выделенной ячейки
@@ -64,6 +87,7 @@ public class ListUtils {
                     @Override
                     public void run() {
                         list.remove(editor);
+                        listEditor.removeEditorActions(list);
                         list.revalidate();
                         list.repaint();
                         listEditor.editCancelled(list, index);
@@ -76,6 +100,7 @@ public class ListUtils {
                         Object newValue = listEditor.getEditorValue(list, index, value);
                         boolean changed = listEditor.updateModelValue(list, index, newValue, true);
                         list.remove(editor);
+                        listEditor.removeEditorActions(list);
                         list.revalidate();
                         list.repaint();
                         if ( changed ) {
@@ -93,7 +118,7 @@ public class ListUtils {
         listEditor.installEditor(list, startEdit);
     }
     
-    private static Rectangle computeCellEditorBounds(int index, Object value, JList list, ListEditor listEditor) {
+    private Rectangle computeCellEditorBounds(int index, Object value, JList list, ListEditor listEditor) {
         // Метод возвращающий расположение редактора на списке
         Rectangle cellBounds = list.getCellBounds (index, index);
         if ( cellBounds != null ) {

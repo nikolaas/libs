@@ -18,6 +18,8 @@ public interface ListEditor {
     
     public void installEditor(JList list, Runnable startEdit);   
     
+    public void removeEditorActions(JList list);
+    
     public boolean isCellEditable(JList list, int index, Object value);   
     
     public JComponent createEditor(JList list, int index, Object value);   
