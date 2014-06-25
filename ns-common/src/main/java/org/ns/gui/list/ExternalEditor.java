@@ -1,6 +1,5 @@
 package org.ns.gui.list;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -10,12 +9,8 @@ import javax.swing.AbstractAction;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.ListModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import org.ns.func.Function;
 
 /**
@@ -39,17 +34,31 @@ public class ExternalEditor extends AbstractListEditor {
     public static final int OK = 1;
     
     public static interface ExternalUI {
+        /**
+         * Запуск редактирования во внешнем UI
+         * @param value 
+         */
         void edit(Object value);
+        
+        /**
+         * Код завершения редактирования
+         * @return одно из значений {@link #CANCEL} или {@link #OK}
+         */
         int getResult();
+        
+        /**
+         * Отредактированное значение
+         * @return 
+         */
         Object getEditedValue();
     }
     
     private class ListHandler extends MouseAdapter implements Function<JList, Integer> {
 
-        private final Runnable startEdit;
+        private Runnable startEdit;
         private int currentCellIndex = -1;
 
-        public ListHandler(Runnable startEdit) {
+        public void setStartEdit(Runnable startEdit) {
             this.startEdit = startEdit;
         }
 
@@ -111,27 +120,14 @@ public class ExternalEditor extends AbstractListEditor {
         
     }
 
-    private ListHandler listHandler;
-    private JComponent editorPane;
-    private JLabel valueLabel;
-    private JButton showExternalSettingsButton;
+    private final ListHandler listHandler = new ListHandler();
+    private JComponent editorComponent;
     
     private final ExternalUI externalUI;
     
-    private JList list;
     private Runnable cancelEdit;
     private Runnable finishEdit;
-    private Object editedValue;
-    private int editedIndex;
-    private Function<Object, String> toStringFunction;
-    private final ListSelectionListener listSelectionListener = new ListSelectionListener() {
-
-        @Override
-        public void valueChanged(ListSelectionEvent e) {
-            setEditorBackground(list, editedIndex);
-        }
-    };
-
+    
     public ExternalEditor(ExternalUI externalUI) {
         this.externalUI = externalUI;
     }
@@ -140,71 +136,40 @@ public class ExternalEditor extends AbstractListEditor {
         return listHandler;
     }
     
-    public Function<Object, String> getToStringFunction() {
-        return toStringFunction;
-    }
-
-    public void setToStringFunction(Function<Object, String> toStringFunction) {
-        this.toStringFunction = toStringFunction;
-    }
-    
     @Override
     public void installEditor(JList list, final Runnable startEdit) {
-        listHandler = new ListHandler(startEdit);
+        listHandler.setStartEdit(startEdit);
         list.addMouseListener(listHandler);
         list.addMouseMotionListener(listHandler);
     }
 
     @Override
     public JComponent createEditor(JList list, int index, Object value) {
-        if ( editorPane == null ) {
+        if ( editorComponent == null ) {
             Rectangle rectangle = list.getCellBounds(index, index);
-            editorPane = new JPanel();
-            valueLabel = new JLabel();
-            showExternalSettingsButton = createShowExternalSettingsButton();
-            GroupLayout layout = new GroupLayout(editorPane);
-            editorPane.setLayout(layout);
+            editorComponent = new JComponent() {};
+            JButton showExternalUIButton = createShowExternalUIButton(value);
+            GroupLayout layout = new GroupLayout(editorComponent);
+            editorComponent.setLayout(layout);
             layout.setHorizontalGroup(
                 layout.createSequentialGroup()
-                    .addComponent(valueLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE, Short.MAX_VALUE)
-                    .addComponent(showExternalSettingsButton, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(showExternalUIButton, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
             );
             layout.setVerticalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(valueLabel, rectangle.height, rectangle.height, rectangle.height)
-                    .addComponent(showExternalSettingsButton, rectangle.height, rectangle.height, rectangle.height)
+                    .addComponent(showExternalUIButton, rectangle.height, rectangle.height, rectangle.height)
             );
         }
-        valueLabel.setText(editedValueToString(value));
-        setEditorBackground(list, index);
-        return editorPane;
+        return editorComponent;
     }
 
-    private void setEditorBackground(JList list, int index) {
-        Color background;
-        if ( isSelected(list, index) ) {
-            background = list.getSelectionBackground();
-        } else {
-            background = list.getBackground();
-        }
-        editorPane.setBackground(background);
-    }
-
-    boolean isSelected(JList list, int index) {
-        for (int selected : list.getSelectedIndices() ) {
-            if ( selected == index ) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    private JButton createShowExternalSettingsButton() {
+    private JButton createShowExternalUIButton(final Object value) {
         final JButton button = new JButton(new AbstractAction("...") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                 externalUI.edit(editedValue);
+                 externalUI.edit(value);
                  int result = externalUI.getResult();
                 if ( result == OK ) {
                     finishEdit.run();
@@ -236,34 +201,15 @@ public class ExternalEditor extends AbstractListEditor {
         return button;
     }
 
-    private String editedValueToString(Object editedValue) {
-        return getToStringFunction() != null ? getToStringFunction().apply(editedValue) : editedValue != null ? editedValue.toString() : null;
-    }
-    
     @Override
     public void setupEditorActions(JList list, Object value, Runnable cancelEdit, Runnable finishEdit) {
-        this.list = list;
-        this.editedValue = value;
-        this.editedIndex = indexOf(list, value);
         this.cancelEdit = cancelEdit;
         this.finishEdit = finishEdit;
-        list.addListSelectionListener(listSelectionListener);
     }
 
     @Override
     public void removeEditorActions(JList list) {
-        list.removeListSelectionListener(listSelectionListener);
         listHandler.currentCellIndex = -1;
-    }
-    
-    private int indexOf(JList list, Object item) {
-        ListModel model = list.getModel();
-        for ( int i = 0; i < model.getSize(); i++ ) {
-            if ( model.getElementAt(i) == item ) {
-                return i;
-            }
-        }
-        return -1;
     }
     
     @Override
